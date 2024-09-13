@@ -7,7 +7,7 @@ from jax import random
 
 class GLMM:
     def __init__(self):
-        with open('data/GLMM_data.json', 'r') as file:
+        with open('jax_posteriordb/data/GLMM_data.json', 'r') as file:
             data = json.load(file)
 
         self.nyear = data['nyear']
@@ -54,9 +54,11 @@ class GLMM:
         return alpha, eps, mu, sd_alpha, sd_eps
 
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         alpha, eps, mu, sd_alpha, sd_eps = self.theta2par(theta)
         return dist.Poisson(jnp.exp(mu + alpha[self.site_train] + eps[self.year_train])).log_prob(self.obs_train)
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         alpha, eps, mu, sd_alpha, sd_eps = self.theta2par(theta)

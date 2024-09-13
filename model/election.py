@@ -7,7 +7,7 @@ from jax import random
 
 class Election:
     def __init__(self):
-        with open('data/election88.json', 'r') as file:
+        with open('jax_posteriordb/data/election88.json', 'r') as file:
             data = json.load(file)
 
         self.N = data['N']
@@ -66,10 +66,13 @@ class Election:
         return a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e
 
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)
         logits = beta[0] + beta[1] * self.black[self.id_train] + beta[2] * self.female[self.id_train] + beta[4] * self.female[self.id_train] * self.black[self.id_train] + beta[3] * self.v_prev_full[self.id_train] + a[self.age[self.id_train]] + b[self.edu[self.id_train]] + c[self.age_edu[self.id_train]] + d[self.state[self.id_train]] + e[self.region_full[self.id_train]]
         return dist.Bernoulli(logits=logits).log_prob(self.y[self.id_train])
+
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)

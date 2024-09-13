@@ -7,7 +7,7 @@ from jax import random
 
 class KidScore:
     def __init__(self):
-        with open('data/kidiq.json', 'r') as file:
+        with open('jax_posteriordb/data/kidiq.json', 'r') as file:
             data = json.load(file)
 
         self.N = data['N']
@@ -40,10 +40,13 @@ class KidScore:
         alpha = theta[1:]
         return alpha, sigma
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         alpha, sigma = self.theta2par(theta)
         mu = alpha[0] + alpha[1] * self.z_mom_hs[self.id_train] + alpha[2] * self.z_mom_iq[self.id_train] + alpha[3] * self.inter[self.id_train]
         return dist.Normal(mu, jnp.exp(sigma)).log_prob(self.kid_score[self.id_train])
+
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         alpha, sigma = self.theta2par(theta)

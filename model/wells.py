@@ -7,7 +7,7 @@ from jax import random
 
 class Wells:
     def __init__(self):
-        with open('data/wells_data.json', 'r') as file:
+        with open('jax_posteriordb/data/wells_data.json', 'r') as file:
             data = json.load(file)
 
         self.N = data['N']
@@ -42,11 +42,14 @@ class Wells:
         beta = theta[1:]
         return alpha, beta
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         alpha, beta = self.theta2par(theta)
         logits = alpha + beta[0] * self.c_dist100[self.id_train] + beta[1] * self.c_arsenic[self.id_train] + beta[2] * self.c_educ4[self.id_train] \
                 + beta[3] * self.da_inter[self.id_train] + beta[4] * self.de_inter[self.id_train] + beta[5] * self.ae_inter[self.id_train]
         return dist.Bernoulli(logits=logits).log_prob(self.switched[self.id_train])
+
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         alpha, beta = self.theta2par(theta)

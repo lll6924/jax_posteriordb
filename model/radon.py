@@ -7,7 +7,7 @@ from jax import random
 
 class Radon:
     def __init__(self):
-        with open('data/radon_all.json', 'r') as file:
+        with open('jax_posteriordb/data/radon_all.json', 'r') as file:
             data = json.load(file)
 
         self.N = data['N']
@@ -50,11 +50,14 @@ class Radon:
         return alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y
 
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)
         sigma_y = jnp.exp(sigma_y)
         mu = alpha[self.county_idx[self.id_train]] + self.floor_measure[self.id_train] * beta[self.county_idx[self.id_train]]
         return dist.Normal(mu, sigma_y).log_prob(self.log_radon[self.id_train])
+
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)

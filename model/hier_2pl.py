@@ -7,7 +7,7 @@ from jax import random
 
 class Hier2PL:
     def __init__(self):
-        with open('data/sat.json', 'r') as file:
+        with open('jax_posteriordb/data/sat.json', 'r') as file:
             data = json.load(file)
         self.y = np.array(data['y'])
         self.I = data['I']
@@ -53,9 +53,12 @@ class Hier2PL:
         return x, ab, mu, tau, L
 
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         x, ab, mu, tau, L = self.theta2par(theta)
         return dist.Bernoulli(logits=jnp.exp(x[...,0][self.ii_train]) * (ab[self.jj_train] - x[...,1][self.ii_train])).log_prob(self.y_train)
+
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         x, ab, mu, tau, L = self.theta2par(theta)

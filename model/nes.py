@@ -7,7 +7,7 @@ from jax import random
 
 class NES:
     def __init__(self):
-        with open('data/nes2000.json', 'r') as file:
+        with open('jax_posteriordb/data/nes2000.json', 'r') as file:
             data = json.load(file)
 
         self.N = data['N']
@@ -44,11 +44,14 @@ class NES:
         return beta, sigma
 
 
-    def log_likelihoods(self, theta):
+    def log_likelihoods(self, theta, *args, **kwargs):
         beta, sigma = self.theta2par(theta)
         sigma = jnp.exp(sigma)
         mu = beta[0] + beta[1] * self.real_ideo[self.id_train] + beta[2] * self.race_adj[self.id_train] + beta[3] * self.age30_44[self.id_train] + beta[4] * self.age45_64[self.id_train] + beta[5] * self.age65up[self.id_train] + beta[6] * self.educ1[self.id_train] + beta[7] * self.gender[self.id_train] + beta[8] * self.income[self.id_train]
         return dist.Normal(mu, sigma).log_prob(self.partyid7[self.id_train])
+
+    def log_likelihood(self, theta, *args, **kwargs):
+        return jnp.sum(self.log_likelihoods(theta))
 
     def valid_log_likelihoods(self, theta):
         beta, sigma = self.theta2par(theta)
