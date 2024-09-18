@@ -48,8 +48,18 @@ class Wells:
                 + beta[3] * self.da_inter[self.id_train] + beta[4] * self.de_inter[self.id_train] + beta[5] * self.ae_inter[self.id_train]
         return dist.Bernoulli(logits=logits).log_prob(self.switched[self.id_train])
 
+    def logits(self, theta):
+        alpha, beta = self.theta2par(theta)
+        logits = alpha + beta[0] * self.c_dist100[self.id_train] + beta[1] * self.c_arsenic[self.id_train] + beta[2] * \
+                 self.c_educ4[self.id_train] \
+                 + beta[3] * self.da_inter[self.id_train] + beta[4] * self.de_inter[self.id_train] + beta[5] * \
+                 self.ae_inter[self.id_train]
+        return logits
     def log_likelihood(self, theta, *args, **kwargs):
         return jnp.sum(self.log_likelihoods(theta))
+
+    def data(self):
+        return self.switched[self.id_train]
 
     def valid_log_likelihoods(self, theta):
         alpha, beta = self.theta2par(theta)
@@ -57,11 +67,33 @@ class Wells:
                 + beta[3] * self.da_inter[self.id_valid] + beta[4] * self.de_inter[self.id_valid] + beta[5] * self.ae_inter[self.id_valid]
         return dist.Bernoulli(logits=logits).log_prob(self.switched[self.id_valid])
 
+    def valid_logits(self, theta):
+        alpha, beta = self.theta2par(theta)
+        logits = alpha + beta[0] * self.c_dist100[self.id_valid] + beta[1] * self.c_arsenic[self.id_valid] + beta[2] * \
+                 self.c_educ4[self.id_valid] \
+                 + beta[3] * self.da_inter[self.id_valid] + beta[4] * self.de_inter[self.id_valid] + beta[5] * \
+                 self.ae_inter[self.id_valid]
+        return logits
+
+    def valid_data(self):
+        return self.switched[self.id_valid]
+
     def test_log_likelihoods(self, theta):
         alpha, beta = self.theta2par(theta)
         logits = alpha + beta[0] * self.c_dist100[self.id_test] + beta[1] * self.c_arsenic[self.id_test] + beta[2] * self.c_educ4[self.id_test] \
                 + beta[3] * self.da_inter[self.id_test] + beta[4] * self.de_inter[self.id_test] + beta[5] * self.ae_inter[self.id_test]
         return dist.Bernoulli(logits=logits).log_prob(self.switched[self.id_test])
+
+    def test_logits(self, theta):
+        alpha, beta = self.theta2par(theta)
+        logits = alpha + beta[0] * self.c_dist100[self.id_test] + beta[1] * self.c_arsenic[self.id_test] + beta[2] * \
+                 self.c_educ4[self.id_test] \
+                 + beta[3] * self.da_inter[self.id_test] + beta[4] * self.de_inter[self.id_test] + beta[5] * \
+                 self.ae_inter[self.id_test]
+        return logits
+
+    def test_data(self):
+        return self.switched[self.id_test]
 
 if __name__ == '__main__':
     cls = Wells()

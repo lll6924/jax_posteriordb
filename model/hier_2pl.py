@@ -57,6 +57,14 @@ class Hier2PL:
         x, ab, mu, tau, L = self.theta2par(theta)
         return dist.Bernoulli(logits=jnp.exp(x[...,0][self.ii_train]) * (ab[self.jj_train] - x[...,1][self.ii_train])).log_prob(self.y_train)
 
+    def logits(self, theta):
+        x, ab, mu, tau, L = self.theta2par(theta)
+        logits = jnp.exp(x[..., 0][self.ii_train]) * (ab[self.jj_train] - x[..., 1][self.ii_train])
+        return logits
+
+    def data(self):
+        return self.y_train
+
     def log_likelihood(self, theta, *args, **kwargs):
         return jnp.sum(self.log_likelihoods(theta))
 
@@ -64,10 +72,25 @@ class Hier2PL:
         x, ab, mu, tau, L = self.theta2par(theta)
         return dist.Bernoulli(logits=jnp.exp(x[...,0][self.ii_valid]) * (ab[self.jj_valid] - x[...,1][self.ii_valid])).log_prob(self.y_valid)
 
+    def valid_logits(self, theta):
+        x, ab, mu, tau, L = self.theta2par(theta)
+        logits = jnp.exp(x[...,0][self.ii_valid]) * (ab[self.jj_valid] - x[...,1][self.ii_valid])
+        return logits
+
+    def valid_data(self):
+        return self.y_valid
+
     def test_log_likelihoods(self, theta):
         x, ab, mu, tau, L = self.theta2par(theta)
         return dist.Bernoulli(logits=jnp.exp(x[...,0][self.ii_test]) * (ab[self.jj_test] - x[...,1][self.ii_test])).log_prob(self.y_test)
 
+    def test_logits(self, theta):
+        x, ab, mu, tau, L = self.theta2par(theta)
+        logits = jnp.exp(x[...,0][self.ii_test]) * (ab[self.jj_test] - x[...,1][self.ii_test])
+        return logits
+
+    def test_data(self):
+        return  self.y_test
 
 if __name__ == '__main__':
     cls = Hier2PL()

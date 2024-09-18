@@ -71,18 +71,50 @@ class Election:
         logits = beta[0] + beta[1] * self.black[self.id_train] + beta[2] * self.female[self.id_train] + beta[4] * self.female[self.id_train] * self.black[self.id_train] + beta[3] * self.v_prev_full[self.id_train] + a[self.age[self.id_train]] + b[self.edu[self.id_train]] + c[self.age_edu[self.id_train]] + d[self.state[self.id_train]] + e[self.region_full[self.id_train]]
         return dist.Bernoulli(logits=logits).log_prob(self.y[self.id_train])
 
+    def logits(self, theta):
+        a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)
+        logits = beta[0] + beta[1] * self.black[self.id_train] + beta[2] * self.female[self.id_train] + beta[4] * \
+                 self.female[self.id_train] * self.black[self.id_train] + beta[3] * self.v_prev_full[self.id_train] + a[
+                     self.age[self.id_train]] + b[self.edu[self.id_train]] + c[self.age_edu[self.id_train]] + d[
+                     self.state[self.id_train]] + e[self.region_full[self.id_train]]
+        return logits
+
     def log_likelihood(self, theta, *args, **kwargs):
         return jnp.sum(self.log_likelihoods(theta))
+
+    def data(self):
+        return self.y[self.id_train]
 
     def valid_log_likelihoods(self, theta):
         a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)
         logits = beta[0] + beta[1] * self.black[self.id_valid] + beta[2] * self.female[self.id_valid] + beta[4] * self.female[self.id_valid] * self.black[self.id_valid] + beta[3] * self.v_prev_full[self.id_valid] + a[self.age[self.id_valid]] + b[self.edu[self.id_valid]] + c[self.age_edu[self.id_valid]] + d[self.state[self.id_valid]] + e[self.region_full[self.id_valid]]
         return dist.Bernoulli(logits=logits).log_prob(self.y[self.id_valid])
 
+    def valid_logits(self, theta):
+        a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)
+        logits = beta[0] + beta[1] * self.black[self.id_valid] + beta[2] * self.female[self.id_valid] + beta[4] * \
+                 self.female[self.id_valid] * self.black[self.id_valid] + beta[3] * self.v_prev_full[self.id_valid] + a[
+                     self.age[self.id_valid]] + b[self.edu[self.id_valid]] + c[self.age_edu[self.id_valid]] + d[
+                     self.state[self.id_valid]] + e[self.region_full[self.id_valid]]
+        return logits
+
+    def valid_data(self):
+        return self.y[self.id_valid]
     def test_log_likelihoods(self, theta):
         a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)
         logits = beta[0] + beta[1] * self.black[self.id_test] + beta[2] * self.female[self.id_test] + beta[4] * self.female[self.id_test] * self.black[self.id_test] + beta[3] * self.v_prev_full[self.id_test] + a[self.age[self.id_test]] + b[self.edu[self.id_test]] + c[self.age_edu[self.id_test]] + d[self.state[self.id_test]] + e[self.region_full[self.id_test]]
         return dist.Bernoulli(logits=logits).log_prob(self.y[self.id_test])
+
+    def test_logits(self, theta):
+        a, b, c, d, e, beta, sigma_a, sigma_b, sigma_c, sigma_d, sigma_e = self.theta2par(theta)
+        logits = beta[0] + beta[1] * self.black[self.id_test] + beta[2] * self.female[self.id_test] + beta[4] * \
+                 self.female[self.id_test] * self.black[self.id_test] + beta[3] * self.v_prev_full[self.id_test] + a[
+                     self.age[self.id_test]] + b[self.edu[self.id_test]] + c[self.age_edu[self.id_test]] + d[
+                     self.state[self.id_test]] + e[self.region_full[self.id_test]]
+        return logits
+
+    def test_data(self):
+        return self.y[self.id_test]
 
 if __name__ == '__main__':
     cls = Election()
