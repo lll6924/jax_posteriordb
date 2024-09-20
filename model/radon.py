@@ -59,17 +59,44 @@ class Radon:
     def log_likelihood(self, theta, *args, **kwargs):
         return jnp.sum(self.log_likelihoods(theta))
 
+    def data(self):
+        return self.log_radon[self.id_train]
+
+    def sample_datapoint(self, key, theta):
+        alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)
+        sigma_y = jnp.exp(sigma_y)
+        mu = alpha[self.county_idx[self.id_train]] + self.floor_measure[self.id_train] * beta[self.county_idx[self.id_train]]
+        return dist.Normal(mu, sigma_y).sample(key)
+
     def valid_log_likelihoods(self, theta):
         alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)
         sigma_y = jnp.exp(sigma_y)
         mu = alpha[self.county_idx[self.id_valid]] + self.floor_measure[self.id_valid] * beta[self.county_idx[self.id_valid]]
         return dist.Normal(mu, sigma_y).log_prob(self.log_radon[self.id_valid])
 
+    def sample_valid_datapoint(self, key, theta):
+        alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)
+        sigma_y = jnp.exp(sigma_y)
+        mu = alpha[self.county_idx[self.id_valid]] + self.floor_measure[self.id_valid] * beta[self.county_idx[self.id_valid]]
+        return dist.Normal(mu, sigma_y).sample(key)
+
+    def valid_data(self):
+        return self.log_radon[self.id_valid]
+
     def test_log_likelihoods(self, theta):
         alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)
         sigma_y = jnp.exp(sigma_y)
         mu = alpha[self.county_idx[self.id_test]] + self.floor_measure[self.id_test] * beta[self.county_idx[self.id_test]]
         return dist.Normal(mu, sigma_y).log_prob(self.log_radon[self.id_test])
+
+    def sample_test_datapoint(self, key, theta):
+        alpha, beta, mu_alpha, mu_beta, sigma_alpha, sigma_beta, sigma_y = self.theta2par(theta)
+        sigma_y = jnp.exp(sigma_y)
+        mu = alpha[self.county_idx[self.id_test]] + self.floor_measure[self.id_test] * beta[self.county_idx[self.id_test]]
+        return dist.Normal(mu, sigma_y).sample(key)
+
+    def test_data(self):
+        return self.log_radon[self.id_test]
 
 if __name__ == '__main__':
     cls = Radon()

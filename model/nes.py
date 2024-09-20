@@ -53,6 +53,15 @@ class NES:
     def log_likelihood(self, theta, *args, **kwargs):
         return jnp.sum(self.log_likelihoods(theta))
 
+    def data(self):
+        return self.partyid7[self.id_train]
+
+    def sample_datapoint(self, key, theta):
+        beta, sigma = self.theta2par(theta)
+        sigma = jnp.exp(sigma)
+        mu = beta[0] + beta[1] * self.real_ideo[self.id_train] + beta[2] * self.race_adj[self.id_train] + beta[3] * self.age30_44[self.id_train] + beta[4] * self.age45_64[self.id_train] + beta[5] * self.age65up[self.id_train] + beta[6] * self.educ1[self.id_train] + beta[7] * self.gender[self.id_train] + beta[8] * self.income[self.id_train]
+        return dist.Normal(mu, sigma).sample(key)
+
     def valid_log_likelihoods(self, theta):
         beta, sigma = self.theta2par(theta)
         sigma = jnp.exp(sigma)
@@ -60,11 +69,30 @@ class NES:
         mu = beta[0] + beta[1] * self.real_ideo[self.id_valid] + beta[2] * self.race_adj[self.id_valid] + beta[3] * self.age30_44[self.id_valid] + beta[4] * self.age45_64[self.id_valid] + beta[5] * self.age65up[self.id_valid] + beta[6] * self.educ1[self.id_valid] + beta[7] * self.gender[self.id_valid] + beta[8] * self.income[self.id_valid]
         return dist.Normal(mu, sigma).log_prob(self.partyid7[self.id_valid])
 
+    def sample_valid_datapoint(self, key, theta):
+        beta, sigma = self.theta2par(theta)
+        sigma = jnp.exp(sigma)
+
+        mu = beta[0] + beta[1] * self.real_ideo[self.id_valid] + beta[2] * self.race_adj[self.id_valid] + beta[3] * self.age30_44[self.id_valid] + beta[4] * self.age45_64[self.id_valid] + beta[5] * self.age65up[self.id_valid] + beta[6] * self.educ1[self.id_valid] + beta[7] * self.gender[self.id_valid] + beta[8] * self.income[self.id_valid]
+        return dist.Normal(mu, sigma).sample(key)
+
+    def valid_data(self):
+        return self.partyid7[self.id_valid]
+
     def test_log_likelihoods(self, theta):
         beta, sigma = self.theta2par(theta)
         sigma = jnp.exp(sigma)
         mu = beta[0] + beta[1] * self.real_ideo[self.id_test] + beta[2] * self.race_adj[self.id_test] + beta[3] * self.age30_44[self.id_test] + beta[4] * self.age45_64[self.id_test] + beta[5] * self.age65up[self.id_test] + beta[6] * self.educ1[self.id_test] + beta[7] * self.gender[self.id_test] + beta[8] * self.income[self.id_test]
         return dist.Normal(mu, sigma).log_prob(self.partyid7[self.id_test])
+
+    def sample_test_datapoint(self, key, theta):
+        beta, sigma = self.theta2par(theta)
+        sigma = jnp.exp(sigma)
+        mu = beta[0] + beta[1] * self.real_ideo[self.id_test] + beta[2] * self.race_adj[self.id_test] + beta[3] * self.age30_44[self.id_test] + beta[4] * self.age45_64[self.id_test] + beta[5] * self.age65up[self.id_test] + beta[6] * self.educ1[self.id_test] + beta[7] * self.gender[self.id_test] + beta[8] * self.income[self.id_test]
+        return dist.Normal(mu, sigma).sample(key)
+
+    def test_data(self):
+        return self.partyid7[self.id_test]
 
 if __name__ == '__main__':
     cls = NES()

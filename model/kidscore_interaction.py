@@ -48,15 +48,39 @@ class KidScore:
     def log_likelihood(self, theta, *args, **kwargs):
         return jnp.sum(self.log_likelihoods(theta))
 
+    def data(self):
+        return self.kid_score[self.id_train]
+
+    def sample_datapoint(self, key, theta):
+        alpha, sigma = self.theta2par(theta)
+        mu = alpha[0] + alpha[1] * self.z_mom_hs[self.id_train] + alpha[2] * self.z_mom_iq[self.id_train] + alpha[3] * self.inter[self.id_train]
+        return dist.Normal(mu, jnp.exp(sigma)).sample(key)
+
     def valid_log_likelihoods(self, theta):
         alpha, sigma = self.theta2par(theta)
         mu = alpha[0] + alpha[1] * self.z_mom_hs[self.id_valid] + alpha[2] * self.z_mom_iq[self.id_valid] + alpha[3] * self.inter[self.id_valid]
         return dist.Normal(mu, jnp.exp(sigma)).log_prob(self.kid_score[self.id_valid])
 
+    def sample_valid_datapoint(self, key, theta):
+        alpha, sigma = self.theta2par(theta)
+        mu = alpha[0] + alpha[1] * self.z_mom_hs[self.id_valid] + alpha[2] * self.z_mom_iq[self.id_valid] + alpha[3] * self.inter[self.id_valid]
+        return dist.Normal(mu, jnp.exp(sigma)).sample(key)
+
+    def valid_data(self):
+        return self.kid_score[self.id_valid]
+
     def test_log_likelihoods(self, theta):
         alpha, sigma = self.theta2par(theta)
         mu = alpha[0] + alpha[1] * self.z_mom_hs[self.id_test] + alpha[2] * self.z_mom_iq[self.id_test] + alpha[3] * self.inter[self.id_test]
         return dist.Normal(mu, jnp.exp(sigma)).log_prob(self.kid_score[self.id_test])
+
+    def sample_test_datapoint(self, key, theta):
+        alpha, sigma = self.theta2par(theta)
+        mu = alpha[0] + alpha[1] * self.z_mom_hs[self.id_test] + alpha[2] * self.z_mom_iq[self.id_test] + alpha[3] * self.inter[self.id_test]
+        return dist.Normal(mu, jnp.exp(sigma)).sample(key)
+
+    def test_data(self):
+        return self.kid_score[self.id_test]
 
 if __name__ == '__main__':
     cls = KidScore()
