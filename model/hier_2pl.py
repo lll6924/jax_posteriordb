@@ -37,19 +37,18 @@ class Hier2PL:
         log_p_L = jnp.sum(dist.Normal().log_prob(L))
         exp_tau = jnp.exp(tau)
         log_p_tau = jnp.sum(dist.Exponential(0.1).log_prob(exp_tau)) + jnp.sum(tau)
-        tril = vec_to_tril_matrix(L, diagonal=-1) + jnp.identity(2)
-        s = jnp.matmul(jnp.diag(exp_tau), tril)
+        tril = vec_to_tril_matrix(L, diagonal=-1) + jnp.diag(exp_tau)
         log_p_mu = dist.Normal(0,1).log_prob(mu[0]) + dist.Normal(0, 5).log_prob(mu[1])
         log_p_ab = jnp.sum(dist.Normal().log_prob(ab))
-        log_p_x = jnp.sum(dist.MultivariateNormal(mu, scale_tril=s).log_prob(x))
+        log_p_x = jnp.sum(dist.MultivariateNormal(mu, scale_tril=tril).log_prob(x))
         return log_p_L + log_p_tau + log_p_x + log_p_ab + log_p_mu
 
     def theta2par(self, theta):
         x = theta[:self.I * 2].reshape((self.I, 2))
-        ab = theta[self.I:self.I + self.J]
-        mu = theta[self.I + self.J: self.I + self.J + 2]
-        tau = theta[self.I + self.J + 2: self.I + self.J + 4]
-        L = theta[self.I + self.J + 4: self.I + self.J + 5]
+        ab = theta[self.I * 2:self.I * 2 + self.J]
+        mu = theta[self.I * 2 + self.J: self.I * 2 + self.J + 2]
+        tau = theta[self.I * 2 + self.J + 2: self.I  * 2 + self.J + 4]
+        L = theta[self.I * 2 + self.J + 4: self.I * 2 + self.J + 5]
         return x, ab, mu, tau, L
 
 
